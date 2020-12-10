@@ -11,10 +11,10 @@ const store = createStore();
 const isEmail = require('isemail');
 
 const server = new ApolloServer({
-  context: async ({req}) => {
+  context: async ({ req }) => {
       //auth check
-    const auth = req.headers && req.authorization.headers || '',
-    const email = Buffer.from(auth, 'base64').toString('ascii'),
+    const auth = req.headers && req.headers.authorization || '';
+    const email = Buffer.from(auth, 'base64').toString('ascii');
     if (!isEmail.validate(email)) return {user: null};
 
     //if user exists, find them

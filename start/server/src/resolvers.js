@@ -29,17 +29,19 @@ module.exports = {
     },
 
     Mutation: {
-      login: async (_, email, { dataSources }) => {
-        const user = dataSources.userAPI.findOrCreateUser({email});
+      login: async (_, { email }, { dataSources }) => {
+        const user = await dataSources.userAPI.findOrCreateUser({ email });
+        
         if (user) {
-          user.token = Buffer.from(email).toString('base64')
+          user.token = Buffer.from(email).toString('base64');
           return user;
         }
       },
       bookTrips: async (_, { launchIds }, { dataSources }) => {
         const results = await dataSources.userAPI.bookTrips({ launchIds });
-        const launches = await dataSources.userAPI.getLaunchesByIds({launchIds});
+        const launches = await dataSources.launchAPI.getLaunchesByIds({launchIds});
 
+        //matches TripUpdateResponse type in schema
         return {
           success: results && results.length === launchIds.length,
           message: results.length === launchIds.length
@@ -48,10 +50,28 @@ module.exports = {
           launches,
         };
       },
+      cancelTrip: async(_, { launchId }, {dataSources }) => {
+        const result = await dataSources.userAPI.cancelTrip({ launchId });
+
+        if (!result) {
+          return {
+            success: false,
+            message: 'failed to cancel trip'
+          };
+        }
+
+        const launch = await dataSources.launchAPI.getLaunchById({ launchId });
+
+        //matches TripUpdateResponse type in schema
+        return {
+          success: true,
+          message: 'trip cancelled',
+          launches: [launch],
+        }
+      }
     },
 
     Mission: {
-      // The default size is 'LARGE' if not provided
       missionPatch: (mission, { size } = { size: 'LARGE' }) => {
         return size === 'SMALL'
           ? mission.missionPatchSmall
