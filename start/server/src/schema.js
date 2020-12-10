@@ -25,8 +25,9 @@ const typeDefs = gql`
     SMALL
     LARGE
   }
+
   type Query {
-    launches( # replace the current launches query with this one.
+    launches(
       """
       The number of results to show. Must be >= 1. Default = 20
       """
@@ -39,16 +40,22 @@ const typeDefs = gql`
     launch(id: ID!): Launch
     me: User
   }
+  
   """
   Simple wrapper around our list of launches that contains a cursor to the
   last item in the list. Pass this cursor to the launches query to fetch results
   after these.
   """
-  type LaunchConnection { # add this below the Query type as an additional type.
+  type LaunchConnection {
     cursor: String!
     hasMore: Boolean!
     launches: [Launch]!
   }
+
+
+
+
+
   type Mutation {
     bookTrips(launchIds: [ID]!): TripUpdateResponse!
     cancelTrip(launchId: ID!): TripUpdateResponse!
