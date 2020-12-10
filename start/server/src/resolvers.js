@@ -35,7 +35,19 @@ module.exports = {
           user.token = Buffer.from(email).toString('base64')
           return user;
         }
-      }
+      },
+      bookTrips: async (_, { launchIds }, { dataSources }) => {
+        const results = await dataSources.userAPI.bookTrips({ launchIds });
+        const launches = await dataSources.userAPI.getLaunchesByIds({launchIds});
+
+        return {
+          success: results && results.length === launchIds.length,
+          message: results.length === launchIds.length
+          ? 'trip booked successfully'
+          : `these launches could not be booked ${launchIds.filter(id => !results.includes(id))}`,
+          launches,
+        };
+      },
     },
 
     Mission: {
